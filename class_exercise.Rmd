@@ -1,0 +1,97 @@
+---
+title: "learning by doing"
+author: "Moses Kayanda"
+date: "2/18/2020"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Write a function that adds two numbers, and divides the result by 2
+
+```{r}
+add <- function(x, y) {
+  return((x + y)/2)
+}
+```
+## 2. You can take a subset of a string using the substr function. First, using that
+function to extract the first characters of a bit of text. Then, write a function called
+firstTwoChars that extracts the first two characters of any bit of text.
+```{r}
+firstTwoChars <- function(text){
+  substr(text,1,2)
+}
+
+firstTwoChars("HS611")
+  
+```
+## 3. Write a function that checks if there are any missing values in a vector (using
+is.na and any). The function should return TRUE if there are missing values, and
+FALSE if not.
+```{r}
+# conditional statement returns TRUE if x is not NA, FALSE otherwise
+missing_value <- function(x){
+  if(any(is.na(x))){
+    T
+} else{
+  F
+}
+}
+x <- c(2,3,4,5,NA,6.7)
+y <- c(2,3,4,5,9,6.7)
+missing_value(x)
+missing_value(y)
+```
+## 4. Improve the function so that it tells you which of the values are missing, if any
+(Hint: use the which function).
+```{r}
+missing_value <- function(x){
+  if(any(is.na(x))){
+    return(which(is.na(x)))
+  } else{
+    return("No missing value")
+  }
+}
+x <- c(2,3,4,5,NA,6.7)
+y <- c(2,3,4,5,9,6.7)
+missing_value(x)
+missing_value(y)
+```
+## 5. The function readline can be used to ask for data to be typed in. First, figure out
+how to use readline by reading the corresponding help file. Then, construct a
+function called getAge that asks the user to type his/her age. (Hint: check the
+examples in the readline help page). The getAge function will return the age of
+the user like "Really you are 28 years old ?" if the user enters 28 as input. If user
+enters a non-numeric character or blank string the function will return: “This is not
+a valid age, please re-enter ”
+```{r}
+getAge <- function() {
+  ANSWER <- readline("Please type your age? ")
+  ANSWER<- suppressWarnings(as.numeric(answer))
+  if(is.na(ANSWER)){
+    cat("This is not a valid age, please re-enter")
+    getAge()
+  }else{
+    cat("Really you are, ANSWER, years old")
+}
+}
+getAge(21)
+```
+## 6. Write a function that returns the confidence interval for a vector. The function
+should have two inputs: the vector, and the desired ’alpha’.
+
+```{r}
+confidence_interval <- function(v,alpha){
+  xbar<-mean(v)
+  s<-sd(v)
+  n<-length(v)
+  half.width<-qt(1-alpha/2, n-1)*s/sqrt(n)
+  c(xbar - half.width, xbar + half.width)
+}
+confidence_interval(c(2,4,7),.01)
+```
+
