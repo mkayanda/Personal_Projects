@@ -1,0 +1,93 @@
+
+--1. From tanzir.icustays table get the adult patients who went through the coronary care
+--unit (CCU). To know whether a patient is an adult, you can get information from the
+--tanzir.patients table.
+
+SELECT *
+    FROM (SELECT *, (EXTRACT('year' FROM dod) - EXTRACT('year' FROM dob)) as age_now
+    FROM tanzir.icustays
+    FULL OUTER JOIN tanzir.patients ON tanzir.icustays.subject_id = tanzir.patients.subject_id)
+    AS sub_query
+    WHERE age_now >=18 AND (first_careunit = 'CCU' OR last_careunit = 'CCU');
+
+--2. Also count how many adult patients went through the coronary care unit (CCU) using
+--the tables that you used in question no: 1. Write the result that your query returned.
+
+SELECT COUNT(*) as over_18
+    FROM (
+    SELECT *, (EXTRACT('year' FROM dod) - EXTRACT('year' FROM dob)) as age_now
+    FROM tanzir.icustays
+    FULL OUTER JOIN 
+    tanzir.patients ON tanzir.icustays.subject_id = tanzir.patients.subject_id) AS sub_query
+    WHERE age_now >=18 AND (first_careunit = 'CCU' OR last_careunit = 'CCU');
+    
+-- Count = 22
+
+--3. a) From the cbb280.ts_allergy table get the number of patients suffering from different
+--type of allergies. (Hint: don’t count one patient more than once ) . Sort the result in
+--order of frequency of occurrence.
+
+SELECT 
+    allergy_type, COUNT(allergy_type) AS count
+FROM
+    cbb280.ts_allergy
+GROUP BY allergy_type
+ORDER BY count DESC;
+
+
+--b) Get the top 3 medication name that caused severe allergic reaction from the
+--cbb280.ts_allergy table.
+
+SELECT 
+    medication_name, COUNT(severity_name) AS count
+FROM
+    cbb280.ts_allergy
+WHERE
+    severity_name = 'Severe'
+        AND medication_name != 'NULL'
+GROUP BY medication_name
+ORDER BY count DESC 
+LIMIT 3;
+
+--4. FROM skarlekar.blood_sugar_reading_v2 table take only those rows where the column
+--‘unit’ has mg/DL and then add a new column ‘glycemic_status’ depending on the values
+--in the ‘value’ column. If the blood glucose level is below 72 mg/DL label it as
+--‘hypoglycemic’, if blood sugar level is more than 120 mg/DL label it as ‘hyperglycemic’
+--and the rest values should be labeled as ‘normal’. (Note: this cut-off s are only for
+--practice purpose, it does not reflect the cut-offs used in clinical practice )
+
+SELECT 
+    t1.value,
+    t1.unit,
+    CASE
+        WHEN t1.value < 72 THEN 'hypoglycemic'
+        WHEN t1.value > 120 THEN 'hyperglycemic'
+        ELSE 'normal'
+    END AS glycemic_status
+FROM
+    skarlekar.blood_sugar_reading_v2 t1
+WHERE
+    (t1.unit = 'mg/dL'
+        AND t1.value IS NOT NULL);
+
+--5. a) Remove the % sign from the survey_response_rate_percent column of the
+--valushka.patient_survey_hcahps_hospital table. Also return the ‘address’ and ‘city’
+--column in lower case and concatenate this two columns.
+
+SELECT 
+    TRIM(TRAILING '%' FROM survey_response_rate_percent) AS response,
+    LOWER(CONCAT(address, city)) AS address_city
+FROM
+    valushka.patient_survey_hcahps_hospital
+
+--b) Remove the numerical portion and the ‘-’ sign from the u_drg_definition column of
+--the marquette_mscs.hospital_discharge_data table. Return the u_drg_definition
+--column, the modified column after removal of numeric portion of u_drg_definition
+--column and the record_id column in your result table.
+
+SELECT 
+    record_id,
+    u_drg_definition,
+    SUBSTR(u_drg_definition, 7) AS new_column
+FROM
+    marquette_mscs.hospital_discharge_data;
